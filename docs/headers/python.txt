@@ -1,0 +1,8 @@
+########################################
+# Politécnica de Santa Rosa            #
+#                                      #
+# Final Project                        #
+# file: main.py                        #
+# description: main file               #
+# owner: Luis Angel Silva Ramirez      #
+########################################

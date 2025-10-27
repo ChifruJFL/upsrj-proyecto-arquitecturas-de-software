@@ -1,0 +1,72 @@
+@startuml
+title Hexagonal Architecture - Binary Signer System
+
+' ========================
+' APP LAYER (INTERFACE)
+' ========================
+package "App Layer - Interface" {
+    component FlaskApp
+    component Routes
+}
+
+' ========================
+' APPLICATION LAYER
+' ========================
+package "Application Layer" {
+    component UploadBinaryUseCase
+    component SignBinaryUseCase
+    component ApproveBinaryUseCase
+    component ListFilesUseCase
+
+    interface IFileRepository
+    interface IDatabaseRepository
+    interface ISigningService
+}
+
+' ========================
+' DOMAIN LAYER
+' ========================
+package "Domain Layer" {
+    component BinaryFile
+    component SigningService
+}
+
+' ========================
+' INFRASTRUCTURE LAYER
+' ========================
+package "Infrastructure Layer" {
+    component FileRepository
+    component JsonRepository
+    component CryptoAdapter
+}
+
+' ========================
+' CONFIG LAYER
+' ========================
+package "Config Layer" {
+    component Settings
+}
+
+' ========================
+' RELATIONSHIPS
+' ========================
+FlaskApp --> Routes
+Routes --> UploadBinaryUseCase
+
+UploadBinaryUseCase --> IFileRepository
+UploadBinaryUseCase --> IDatabaseRepository
+SignBinaryUseCase --> ISigningService
+ApproveBinaryUseCase --> IDatabaseRepository
+
+IFileRepository <.. FileRepository
+IDatabaseRepository <.. JsonRepository
+ISigningService <.. CryptoAdapter
+
+UploadBinaryUseCase --> BinaryFile
+SigningService --> CryptoAdapter
+
+FileRepository --> Settings
+JsonRepository --> Settings
+CryptoAdapter --> Settings
+
+@enduml
