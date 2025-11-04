@@ -1,12 +1,20 @@
 # ============================================================
-# Politécnica de Santa Rosa
-#
+# Universidad Politécnica de Santa Rosa Jáuregui
+# Alumno: Luis Ángel Silva Ramírez
 # Materia: Arquitecturas de Software
 # Profesor: Jesús Salvador López Ortega
 # Grupo: ISW28
-# Archivo: test_main.py
-# Descripción: Archivo de pruebas unitarias para validar el comportamiento de funciones del proyecto
+# Archivo: test_evaluation.py
+# Descripción: Este archivo contiene pruebas unitarias diseñadas para 
+#              validar el funcionamiento de los procesos criptográficos 
+#              implementados en el módulo principal del proyecto. A través 
+#              de la clase TestCryptography, se verifica que las claves y 
+#              los tokens generados sean del tipo correcto, que no estén 
+#              vacíos y que el mensaje desencriptado coincida con el texto 
+#              original. Utiliza la librería unittest para ejecutar las 
+#              pruebas y confirmar la integridad del sistema de cifrado.
 # ============================================================
+
 import sys
 import unittest
 from common.vars import *

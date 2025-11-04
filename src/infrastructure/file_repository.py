@@ -1,3 +1,21 @@
+# ============================================================
+# Universidad Politécnica de Santa Rosa Jáuregui
+# Alumno: Luis Ángel Silva Ramírez
+# Materia: Arquitecturas de Software
+# Profesor: Jesús Salvador López Ortega
+# Grupo: ISW28
+# Archivo: file_repository.py
+# Descripción: Este archivo implementa la clase FileRepository, la cual 
+#              se encarga de gestionar las operaciones relacionadas con 
+#              el almacenamiento de archivos binarios en el sistema de 
+#              archivos local. Proporciona métodos para guardar, cargar, 
+#              eliminar, listar y mover archivos firmados, asegurando la 
+#              creación de las carpetas necesarias para su organización. 
+#              Permite manejar tanto archivos binarios sin firmar como 
+#              aquellos que han sido firmados digitalmente, manteniendo 
+#              un control ordenado dentro de las rutas definidas.
+# ============================================================
+
 import os
 import shutil
 from datetime import datetime

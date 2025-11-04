@@ -1,3 +1,22 @@
+# ============================================================
+# Universidad Politécnica de Santa Rosa Jáuregui
+# Alumno: Luis Ángel Silva Ramírez
+# Materia: Arquitecturas de Software
+# Profesor: Jesús Salvador López Ortega
+# Grupo: ISW28
+# Archivo: json_repository.py
+# Descripción: Este archivo implementa la clase JsonRepository, la cual 
+#              actúa como un repositorio para almacenar y gestionar 
+#              información en formato JSON. Proporciona métodos para 
+#              agregar, obtener, actualizar, listar y eliminar registros, 
+#              además de asegurar la creación y estructura inicial del 
+#              archivo de base de datos. Cada registro incluye un 
+#              identificador y una marca de tiempo generada 
+#              automáticamente, permitiendo manejar los datos de forma 
+#              persistente sin el uso de un sistema de base de datos 
+#              tradicional.
+# ============================================================
+
 import os
 import json
 from datetime import datetime

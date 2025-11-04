@@ -1,6 +1,6 @@
 # ============================================================
 # Universidad Politécnica de Santa Rosa Jáuregui
-#
+# Alumno: Luis Angel Silva Ramirez
 # Materia: Arquitecturas de Software
 # Profesor: Jesús Salvador López Ortega
 # Grupo: ISW28
