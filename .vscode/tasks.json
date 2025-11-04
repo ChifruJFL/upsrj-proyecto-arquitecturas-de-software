@@ -4,7 +4,7 @@
     {
       "label": "Execute Project",
       "type": "shell",
-      "command": "python src/main.py",
+      "command": "python -m src.app.main",
       "group": "build",
       "presentation": {
         "echo": true,

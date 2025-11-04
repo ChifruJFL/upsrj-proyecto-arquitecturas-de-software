@@ -10,7 +10,8 @@
 # ============================================================
 from flask import Flask
 from src.app.routes import register_routes
-from vars import Hosts
+from src.common.vars import Hosts
+
 
 def create_app() -> Flask:
     """

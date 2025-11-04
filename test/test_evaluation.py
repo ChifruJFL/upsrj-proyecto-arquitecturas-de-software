@@ -2,21 +2,38 @@
 # Politécnica de Santa Rosa
 #
 # Materia: Arquitecturas de Software
-# Profesor: Luis Angel Silva Ramirez
+# Profesor: Jesús Salvador López Ortega
 # Grupo: ISW28
 # Archivo: test_main.py
 # Descripción: Archivo de pruebas unitarias para validar el comportamiento de funciones del proyecto
 # ============================================================
-
-import sys, os, unittest, io
-from vars import*
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src')))
+import sys
+import unittest
+from common.vars import *
 
 sys.path.insert(0, BASE_DIR)
 
-class TestEvaluation(unittest.TestCase):
-    
-    def 
+import main
 
-if __name__ == "__main__":
- unittest()
+class TestCryptography(unittest.TestCase):
+
+    def test_cryptography(self):
+        # Recuperar objetos desde main
+        key = main.key
+        fernet = main.f
+        token = main.token
+
+        # Validaciones didácticas
+        self.assertIsInstance(key, bytes, "La clave debe ser de tipo bytes")
+        self.assertIsInstance(token, bytes, "El token debe ser de tipo bytes")
+        self.assertTrue(len(token) > 0, "El token no debe estar vacío")
+
+        # Desencriptar y validar
+        decrypted = fernet.decrypt(token)
+        expected = b"A really secret message. Not for prying eyes."
+        self.assertEqual(decrypted, expected, "El mensaje desencriptado debe coincidir con el original")
+        
+        print("Everything fine with cryptography.")
+        
+if __name__ == '__main__':
+    unittest.main()
