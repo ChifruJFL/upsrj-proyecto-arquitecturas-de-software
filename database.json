@@ -1,0 +1,29 @@
+[
+    {
+        "id": "0dcd2e16-336b-43d7-bfc8-8e4d4b606a49",
+        "filename": "data/binaries/0dcd2e16-336b-43d7-bfc8-8e4d4b606a4920251112221649.bin",
+        "environment": "dev",
+        "status": "signed",
+        "uploaded_at": "2025-11-12T22:16:49.850008",
+        "signed_path": null,
+        "signature": null
+    },
+    {
+        "id": "2911f845-303e-432e-974f-0737fe29a9d1",
+        "filename": "data/binaries/2911f845-303e-432e-974f-0737fe29a9d120251112221954.bin",
+        "environment": "dev",
+        "status": "signed",
+        "uploaded_at": "2025-11-12T22:19:54.627131",
+        "signed_path": null,
+        "signature": null
+    },
+    {
+        "id": "9c60f2a8-f9f2-4fb2-9e1a-7f8a89d629ed",
+        "filename": "data/binaries/9c60f2a8-f9f2-4fb2-9e1a-7f8a89d629ed20251112222624.bin",
+        "environment": "dev",
+        "status": "signed",
+        "uploaded_at": "2025-11-12T22:26:24.170302",
+        "signed_path": null,
+        "signature": null
+    }
+]

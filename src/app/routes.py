@@ -12,7 +12,7 @@
 # ============================================================
 
 from flask import request, jsonify, render_template
-from src.application.use_cases import UploadBinaryUseCase
+from src.application.use_cases import UploadBinaryUseCase, ListFilesUseCase
 from src.infrastructure.file_repository import FileRepository
 from src.infrastructure.json_repository import JsonRepository
 
@@ -35,7 +35,10 @@ def register_routes(app):
     """
     @app.route("/")
     def home():
-        return render_template("home.html")
+        repo = JsonRepository()
+        use_case = ListFilesUseCase(repo)
+        files = use_case.execute()
+        return render_template("home.html", files =files)
     
 
     @app.route("/upload", methods=["POST"])
@@ -62,5 +65,14 @@ def register_routes(app):
         use_case = UploadBinaryUseCase(FileRepository(), JsonRepository())
         binary = use_case.execute(file, environment)
 
-        # Return response as JSON
-        return jsonify({'id': binary.id, 'status': binary.status})
+    
+        # Return JSON response with binary metadata
+        return jsonify({
+            'id': binary.id,
+            'filename': binary.filename,
+            'environment': binary.environment,
+            'status': binary.status,
+            'signature': getattr(binary, 'signature', None),
+            'uploaded_at': getattr(binary, 'uploaded_at', None),
+            'signed_path': getattr(binary, 'signed_path', None)
+        }), 200

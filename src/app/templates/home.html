@@ -69,10 +69,11 @@
 </head>
 <body>
 
-    <div class="container">
-        <div class="card p-4 p-md-5 mx-auto" style="max-width: 480px;">
+    <div class="container py-5">
+        <div class="card p-4 p-md-5 mx-auto" style="max-width: 600px;">
             <h3 class="text-center mb-4">📁 Upload Binary File</h3>
 
+            <!-- ✅ Upload Form -->
             <form id="uploadForm" enctype="multipart/form-data" class="needs-validation" novalidate>
                 <div class="mb-3">
                     <label for="file" class="form-label fw-semibold">Select binary file:</label>
@@ -93,6 +94,40 @@
                 </div>
             </form>
         </div>
+
+        <!-- ✅ Files Table -->
+        <div class="card mt-5 p-4">
+            <h4 class="mb-3">📋 Uploaded Files</h4>
+
+            {% if files %}
+            <div class="table-responsive">
+                <table class="table table-striped align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Filename</th>
+                            <th>Environment</th>
+                            <th>Status</th>
+                            <th>Uploaded At</th>
+                        </tr>
+                    </thead>
+                    <tbody id="fileTable">
+                        {% for file in files %}
+                        <tr>
+                            <td>{{ file.id }}</td>
+                            <td>{{ file.filename }}</td>
+                            <td>{{ file.environment }}</td>
+                            <td>{{ file.status }}</td>
+                            <td>{{ file.uploaded_at }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted">No files uploaded yet.</p>
+            {% endif %}
+        </div>
     </div>
 
     <div id="popup" class="popup">✅ File Successfully Uploaded</div>
@@ -103,6 +138,7 @@
     <script>
         const form = document.getElementById('uploadForm');
         const popup = document.getElementById('popup');
+        const fileTable = document.getElementById('fileTable');
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -121,8 +157,21 @@
                 });
 
                 if (response.ok) {
+                    const data = await response.json();
                     popup.style.display = 'block';
                     setTimeout(() => popup.style.display = 'none', 3000);
+
+                    // ✅ Add new row dynamically
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${data.id}</td>
+                        <td>${formData.get('file').name}</td>
+                        <td>${formData.get('environment')}</td>
+                        <td>${data.status}</td>
+                        <td>${new Date().toLocaleString()}</td>
+                    `;
+                    fileTable.appendChild(row);
+
                     form.reset();
                     form.classList.remove('was-validated');
                 } else {

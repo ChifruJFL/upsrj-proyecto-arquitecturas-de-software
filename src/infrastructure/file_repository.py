@@ -29,9 +29,10 @@ from typing import BinaryIO
 class FileRepository(object):
     
     def __init__(self, base_path: str = "data"):
-        self.binary_dir = "data/binaries"
-        self.signed_dir = "data/signed"
+        self.binary_dir = os.path.join(base_path, "binaries")
+        self.signed_dir = os.path.join(base_path, "signed")
         self.__ensure_directories()
+
 
     def __ensure_directories(self) -> None:
         for directory in [self.binary_dir, self.signed_dir]:

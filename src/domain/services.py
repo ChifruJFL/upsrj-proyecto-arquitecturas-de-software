@@ -18,15 +18,29 @@
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding
 
+
 class SigningService:
+    """
+    Servicio encargado de firmar archivos binarios usando RSA y SHA-256.
+    Requiere un key_loader que devuelva la clave privada desde un archivo PEM.
+    """
+
     def __init__(self, key_loader):
         self.key_loader = key_loader
 
-    def sign_binary(self, binary_data: bytes,private_key_path: str):
+    def sign_binary(self, binary_data: bytes, private_key_path: str) -> bytes:
+        """
+        Firma un archivo binario con una clave privada RSA.
+        Args:
+            binary_data (bytes): Contenido binario del archivo.
+            private_key_path (str): Ruta al archivo PEM con la clave privada.
+        Returns:
+            bytes: Firma digital generada.
+        """
         private_key = self.key_loader(private_key_path)
-        return private_key.sign(
+        signature = private_key.sign(
             binary_data,
             padding.PKCS1v15(),
             hashes.SHA256()
         )
-        
+        return signature
