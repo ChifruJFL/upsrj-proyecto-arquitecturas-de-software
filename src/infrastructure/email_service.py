@@ -38,7 +38,7 @@ class EmailService:
             </div>
             """
 
-            # --- CUERPO EN TEXTO PLANO (BACKUP) ---
+            # --- CUERPO EN TEXTO PLANO ---
             text_body = (
                 "SOLICITUD DE FIRMA PARA PRODUCCIÓN\n\n"
                 f"El archivo '{filename}' está en espera de aprobación.\n\n"
@@ -55,9 +55,9 @@ class EmailService:
             )
 
             current_app.mail.send(msg)
-            print(f"✅ Correo HTML enviado a {recipient_email}")
+            print(f" Correo HTML enviado a {recipient_email}")
             return True
 
         except Exception as e:
-            print(f"❌ Error enviando correo: {e}")
+            print(f" Error enviando correo: {e}")
             return False

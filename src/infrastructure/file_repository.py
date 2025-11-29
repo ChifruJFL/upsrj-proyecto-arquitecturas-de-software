@@ -38,7 +38,7 @@ class FileRepository(object):
         filename = f"{file_id}{datetime.now().strftime('%Y%m%d%H%M%S')}.bin"
         file_path = os.path.join(directory, filename)
 
-        if hasattr(file, "save"):  # Flask FileStorage
+        if hasattr(file, "save"):  
             file.save(file_path)
         else:
             with open(file_path, "wb") as f:

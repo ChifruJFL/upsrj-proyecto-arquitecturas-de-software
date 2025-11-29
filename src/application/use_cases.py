@@ -48,7 +48,7 @@ class UploadBinaryUseCase:
         
         self.db_repo.add_record(binary.to_dict())
         
-        # LOGICA DE PRODUCCIÓN: Enviar correo
+        # LOGICA DE PRODUCCION: Enviar correo
         if environment == 'prod' and self.email_service and user_email:
             self.email_service.send_approval_email(user_email, binary.id, binary.filename)
             

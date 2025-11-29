@@ -31,7 +31,7 @@ class JsonRepository(object):
     def __ensure_database(self) -> None:
         directory = os.path.dirname(self.json_path)
         
-        # CORRECCIÓN: Solo intentar crear directorio si 'directory' NO está vacío
+       
         if directory and not os.path.exists(directory):
             os.makedirs(directory)
 

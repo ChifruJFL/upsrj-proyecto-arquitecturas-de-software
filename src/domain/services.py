@@ -28,8 +28,7 @@ class SigningService:
     
     def sign_file(self, binary: BinaryFile) -> Tuple[str, str]:
         try:
-            # CORRECCIÓN: Usamos os.path.basename para obtener solo el nombre del archivo
-            # y evitar que se duplique la ruta 'data/binaries/data/binaries/...'
+          
             filename_only = os.path.basename(binary.filename)
             source_path = os.path.join(DATA_DIR, filename_only)
             

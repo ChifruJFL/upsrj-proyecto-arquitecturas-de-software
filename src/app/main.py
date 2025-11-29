@@ -21,7 +21,7 @@ sys.path.append(str(Path(__file__).parent.parent.parent))
 def create_app():
     app = Flask(__name__, template_folder='templates')
 
-    # --- CONFIGURACIÓN DEL CORREO (GMAIL) ---
+    # --- CONFIGURACION DEL CORREO (GMAIL) ---
     app.config['MAIL_SERVER'] = 'smtp.gmail.com'
     app.config['MAIL_PORT'] = 587
     app.config['MAIL_USE_TLS'] = True
@@ -29,12 +29,12 @@ def create_app():
     # CORREO REMITENTE
     app.config['MAIL_USERNAME'] = 'filipponerisilva@gmail.com'
     
-    # ⚠️ Debe ser una "contraseña de aplicación" de Gmail, NO tu contraseña real
+    # Debe ser una "contraseña de aplicacion" de Gmail, NO tu contraseña real
     app.config['MAIL_PASSWORD'] = 'brdxsyyrcsukeuea'
 
     app.config['MAIL_DEFAULT_SENDER'] = app.config['MAIL_USERNAME']
 
-    # CORREO AL QUE SE ENVIARÁN LAS APROBACIONES
+    # CORREO AL QUE SE ENVIARAN LAS APROBACIONES
     app.config['APPROVER_EMAIL'] = 'filipponerisilva@gmail.com'
 
     # Inicializar Flask-Mail
