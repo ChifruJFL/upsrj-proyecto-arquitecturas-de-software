@@ -1,187 +1,334 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Binary File Upload</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    
-    <!-- ✅ Bootstrap 5 CDN -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
+    <title>Gestor de Archivos Firmados</title>
     <style>
+        /* --- NUEVO TEMA (Azules/Grises Modernos) --- */
+        :root {
+            --bg-dark: #0f172a;
+            --bg-container: #1e293b;
+            --border-color: #334155;
+            --text-primary: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --color-accent: #3b82f6;
+            --color-accent-dark: #2563eb;
+            --color-success: #22c55e;
+            --color-warning: #f59e0b;
+        }
+
         body {
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            font-family: "Inter", Arial, sans-serif;
+            margin: 0;
+            padding: 25px;
             min-height: 100vh;
+            background: var(--bg-dark);
+            color: var(--text-primary);
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: center;
-            font-family: "Segoe UI", Arial, sans-serif;
         }
 
-        .card {
-            border: none;
-            border-radius: 16px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
-            transition: all 0.3s ease;
+        h1 {
+            color: var(--text-primary);
+            font-weight: 600;
+            margin-bottom: 2rem;
+            letter-spacing: 0.5px;
         }
 
-        .card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        /* --- CONTENEDOR DEL FORMULARIO --- */
+        .upload-wrapper {
+            background: var(--bg-container);
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 520px;
+            margin-bottom: 2rem;
+            border-radius: 14px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.25);
         }
 
-        .btn-primary {
-            background-color: #007bff;
+        .form-group { margin-bottom: 1.5rem; }
+
+        label {
+            color: var(--text-secondary);
+            margin-bottom: 0.4rem;
+            display: block;
+            font-size: 0.95rem;
+        }
+
+        input[type="file"] {
+            color: var(--text-primary);
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            background: #334155;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: var(--color-accent);
+            color: white;
             border: none;
             border-radius: 8px;
             font-weight: 600;
-            transition: all 0.3s ease;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: 0.25s ease;
         }
 
-        .btn-primary:hover {
-            background-color: #0056b3;
-            transform: translateY(-1px);
+        button:hover {
+            background: var(--color-accent-dark);
         }
 
-        /* Popup */
-        .popup {
+        /* --- TABLA --- */
+        .table-container {
+            width: 100%;
+            max-width: 1050px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-container);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background: #0f172a;
+            color: var(--color-accent);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+        }
+
+        a.download-link {
+            color: var(--color-accent);
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        a.download-link:hover {
+            text-decoration: underline;
+        }
+
+        /* --- ETIQUETAS --- */
+        .status {
+            padding: 5px 10px;
+            font-size: 0.75rem;
+            border-radius: 6px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .status.signed {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--color-success);
+            border: 1px solid var(--color-success);
+        }
+
+        .status.pending {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--color-warning);
+            border: 1px solid var(--color-warning);
+        }
+
+        .environment { font-weight: bold; }
+        .env-prod { color: #f87171; }
+        .env-dev { color: #38bdf8; }
+
+        /* --- POPUP --- */
+        #popup {
             display: none;
             position: fixed;
-            top: 30px;
-            right: 30px;
-            background-color: #28a745;
+            top: 20px;
+            right: 20px;
+            padding: 18px 25px;
+            background: var(--color-success);
             color: #fff;
-            padding: 15px 20px;
-            border-radius: 8px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.45);
             font-weight: 500;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            z-index: 1050;
-            animation: fadeInOut 3s ease-in-out;
+            animation: slideIn 0.45s ease-out;
+            z-index: 1000;
         }
 
-        @keyframes fadeInOut {
-            0% { opacity: 0; transform: translateY(-10px); }
-            10% { opacity: 1; transform: translateY(0); }
-            90% { opacity: 1; }
-            100% { opacity: 0; transform: translateY(-10px); }
+        @keyframes slideIn {
+            from { transform: translateX(140%); }
+            to { transform: translateX(0); }
         }
     </style>
 </head>
+
 <body>
 
-    <div class="container py-5">
-        <div class="card p-4 p-md-5 mx-auto" style="max-width: 600px;">
-            <h3 class="text-center mb-4">📁 Upload Binary File</h3>
+    <h1>Gestor de Archivos Firmados</h1>
 
-            <!-- ✅ Upload Form -->
-            <form id="uploadForm" enctype="multipart/form-data" class="needs-validation" novalidate>
-                <div class="mb-3">
-                    <label for="file" class="form-label fw-semibold">Select binary file:</label>
-                    <input type="file" class="form-control" id="file" name="file" required>
-                    <div class="invalid-feedback">Please choose a file.</div>
-                </div>
-
-                <div class="mb-4">
-                    <label for="environment" class="form-label fw-semibold">Environment:</label>
-                    <select class="form-select" id="environment" name="environment">
-                        <option value="dev">Development</option>
-                        <option value="prod">Production</option>
-                    </select>
-                </div>
-
-                <div class="d-grid">
-                    <button type="submit" class="btn btn-primary btn-lg">UPLOAD</button>
-                </div>
-            </form>
-        </div>
-
-        <!-- ✅ Files Table -->
-        <div class="card mt-5 p-4">
-            <h4 class="mb-3">📋 Uploaded Files</h4>
-
-            {% if files %}
-            <div class="table-responsive">
-                <table class="table table-striped align-middle">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>ID</th>
-                            <th>Filename</th>
-                            <th>Environment</th>
-                            <th>Status</th>
-                            <th>Uploaded At</th>
-                        </tr>
-                    </thead>
-                    <tbody id="fileTable">
-                        {% for file in files %}
-                        <tr>
-                            <td>{{ file.id }}</td>
-                            <td>{{ file.filename }}</td>
-                            <td>{{ file.environment }}</td>
-                            <td>{{ file.status }}</td>
-                            <td>{{ file.uploaded_at }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+    <div class="upload-wrapper">
+        <form id="uploadForm">
+            <div class="form-group">
+                <label for="file">Archivo a procesar</label>
+                <input type="file" id="file" name="file" required>
+                <small id="fileNameDisplay"></small>
             </div>
-            {% else %}
-            <p class="text-muted">No files uploaded yet.</p>
-            {% endif %}
-        </div>
+
+            <div class="form-group">
+                <label for="environment">Modo de procesamiento:</label>
+                <select id="environment" name="environment">
+                    <option value="dev">Desarrollo (firma inmediata)</option>
+                    <option value="prod">Producción (requiere autorización)</option>
+                </select>
+            </div>
+
+            <button type="submit">Procesar Archivo</button>
+        </form>
     </div>
 
-    <div id="popup" class="popup">✅ File Successfully Uploaded</div>
+    <div class="table-container">
+        <table class="file-list-container">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Entorno</th>
+                    <th>Estado</th>
+                    <th>Fecha</th>
+                    <th>Acción</th>
+                    <th>Hash</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
 
-    <!-- ✅ Bootstrap JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <div id="popup"></div>
 
     <script>
+        const fileInput = document.getElementById('file');
+        const fileNameDisplay = document.getElementById('fileNameDisplay');
         const form = document.getElementById('uploadForm');
         const popup = document.getElementById('popup');
-        const fileTable = document.getElementById('fileTable');
+        const tableBody = document.querySelector('.file-list-container tbody');
 
-        form.addEventListener('submit', async (e) => {
+        document.addEventListener('DOMContentLoaded', loadFiles);
+
+        async function loadFiles() {
+            try {
+                const response = await fetch('/files');
+                if (response.ok) {
+                    const files = await response.json();
+                    tableBody.innerHTML = '';
+                    files.reverse().forEach(file => addRowToTable(file));
+                }
+            } catch (e) {
+                console.error("Error al cargar la lista:", e);
+            }
+        }
+
+        function addRowToTable(file) {
+            const row = document.createElement('tr');
+
+            const id = file.id ? file.id.substring(0, 8) + "..." : "—";
+            const sig = file.signature ? file.signature.substring(0, 12) + "..." : "—";
+            let dateStr = file.uploaded_at || file.uploaded_date || "—";
+            if (dateStr.includes("T")) dateStr = dateStr.split("T")[0];
+
+            const action = file.signed_path
+                ? `<a class="download-link" href="#" onclick="alert('Ubicación del archivo firmado: ${file.signed_path}')">Ver</a>`
+                : "—";
+
+            row.innerHTML = `
+                <td style="font-family: monospace; color: var(--text-secondary);">${id}</td>
+                <td>${file.filename}</td>
+                <td class="environment env-${file.environment}">${file.environment}</td>
+                <td><span class="status ${file.status}">${file.status}</span></td>
+                <td>${dateStr}</td>
+                <td>${action}</td>
+                <td style="font-family: monospace; color: var(--text-secondary);">${sig}</td>
+            `;
+
+            tableBody.appendChild(row);
+        }
+
+        fileInput.addEventListener("change", () => {
+            const fileName = fileInput.files.length ? fileInput.files[0].name : "";
+            fileNameDisplay.textContent = fileName ? "Seleccionado: " + fileName : "";
+        });
+
+        form.addEventListener("submit", async (e) => {
             e.preventDefault();
 
-            if (!form.checkValidity()) {
-                form.classList.add('was-validated');
-                return;
-            }
+            const submitBtn = form.querySelector("button");
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Procesando...";
 
             const formData = new FormData(form);
+            const env = document.getElementById("environment").value;
+            const isProd = env === "prod";
 
             try {
-                const response = await fetch('/upload', {
-                    method: 'POST',
-                    body: formData
-                });
+                const uploadResp = await fetch("/upload", { method: "POST", body: formData });
+                if (!uploadResp.ok) throw new Error("No se pudo subir el archivo");
 
-                if (response.ok) {
-                    const data = await response.json();
-                    popup.style.display = 'block';
-                    setTimeout(() => popup.style.display = 'none', 3000);
+                const uploaded = await uploadResp.json();
+                let processed = uploaded;
 
-                    // ✅ Add new row dynamically
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${data.id}</td>
-                        <td>${formData.get('file').name}</td>
-                        <td>${formData.get('environment')}</td>
-                        <td>${data.status}</td>
-                        <td>${new Date().toLocaleString()}</td>
-                    `;
-                    fileTable.appendChild(row);
+                if (!isProd) {
+                    const signResp = await fetch("/sign", {
+                        method: "POST",
+                        headers: {"Content-Type": "application/json"},
+                        body: JSON.stringify({ file_id: uploaded.id })
+                    });
 
-                    form.reset();
-                    form.classList.remove('was-validated');
-                } else {
-                    alert("⚠️ Upload failed. Please try again.");
+                    if (!signResp.ok) throw new Error("Error durante la firma");
+                    processed = await signResp.json();
                 }
-            } catch (error) {
-                console.error("Error uploading file:", error);
-                alert("❌ Error uploading file.");
+
+                popup.style.backgroundColor = processed.status === "signed"
+                    ? "var(--color-success)"
+                    : "var(--color-warning)";
+
+                popup.textContent = processed.status === "signed"
+                    ? "Archivo procesado y firmado correctamente."
+                    : "Archivo registrado. Requiere aprobación.";
+
+                popup.style.display = "block";
+                setTimeout(() => popup.style.display = "none", 3500);
+
+                form.reset();
+                fileNameDisplay.textContent = "";
+
+                tableBody.innerHTML = "";
+                loadFiles();
+
+            } catch (err) {
+                popup.style.backgroundColor = "var(--color-accent-dark)";
+                popup.textContent = "Error: " + err.message;
+                popup.style.display = "block";
+                setTimeout(() => popup.style.display = "none", 3000);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Procesar Archivo";
             }
         });
     </script>
+
 </body>
 </html>

@@ -5,74 +5,79 @@
 # Profesor: Jesús Salvador López Ortega
 # Grupo: ISW28
 # Archivo: routes.py
-# Descripción: Define la ruta /upload para recibir archivos mediante 
-# solicitudes POST. Usa el caso de uso UploadBinaryUseCase junto con 
-# los repositorios FileRepository y JsonRepository para procesar y 
-# almacenar los archivos binarios según el entorno especificado.
+# Descripción: Define las rutas principales del sistema:
+# - /upload  : Recibe archivos y envía correo de aprobación
+# - /files   : Lista los registros JSON
+# - /sign    : Firma un archivo existente
 # ============================================================
 
 from flask import request, jsonify, render_template
-from src.application.use_cases import UploadBinaryUseCase, ListFilesUseCase
+from src.application.use_cases import UploadBinaryUseCase, SignBinaryUseCase, ApproveBinaryUseCase
 from src.infrastructure.file_repository import FileRepository
 from src.infrastructure.json_repository import JsonRepository
+from src.infrastructure.email_service import EmailService
+from src.domain.services import SigningService
 
 def register_routes(app):
-    """
-    Register HTTP routes for the Flask application.
 
-    This function attaches all routes related to file uploads to the given
-    Flask application instance. It defines an endpoint that handles binary
-    file uploads and delegates the logic to the UploadBinaryUseCase class.
-
-    Args:
-        app (Flask): The Flask application instance used to register routes.
-
-    Routes:
-        /upload (POST): 
-            Receives a file and an optional environment variable. 
-            Executes the upload use case to process the binary file and 
-            returns the file ID and its upload status in JSON format.
-    """
-    @app.route("/")
+    @app.route('/')
     def home():
-        repo = JsonRepository()
-        use_case = ListFilesUseCase(repo)
-        files = use_case.execute()
-        return render_template("home.html", files =files)
-    
+        return render_template('home.html')
 
-    @app.route("/upload", methods=["POST"])
-    def upload_file():
-        """
-        Handle the file upload request.
+    @app.route('/files', methods=['GET'])
+    def list_files():
+        return jsonify(JsonRepository().list_records()), 200
 
-        This endpoint retrieves a binary file and an optional environment
-        parameter from the incoming POST request. It initializes the 
-        UploadBinaryUseCase with the appropriate repositories, executes 
-        the upload operation, and returns the resulting file information.
-
-        Returns:
-            Response: A JSON object containing:
-                - id (str): The identifier of the uploaded binary file.
-                - status (str): The current status of the uploaded file.
-        """
-        # Retrieve file input and environment variable 
+    # --- SOLO UNA RUTA /upload ---
+    @app.route('/upload', methods=['POST'])
+    def upload_binary():
         file = request.files['file']
         environment = request.form.get('environment', 'dev')
 
-        
-        # Invoque "upload binary use case" with current context
-        use_case = UploadBinaryUseCase(FileRepository(), JsonRepository())
-        binary = use_case.execute(file, environment)
+        target_email = app.config['APPROVER_EMAIL']
 
-    
-        # Return JSON response with binary metadata
-        return jsonify({
-            'id': binary.id,
-            'filename': binary.filename,
-            'environment': binary.environment,
-            'status': binary.status,
-            'signature': getattr(binary, 'signature', None),
-            'uploaded_at': getattr(binary, 'uploaded_at', None),
-            'signed_path': getattr(binary, 'signed_path', None)
-        }), 200
+        use_case = UploadBinaryUseCase(
+            FileRepository(),
+            JsonRepository(),
+            EmailService()
+        )
+        
+        binary = use_case.execute(file, environment, target_email)
+        return jsonify(binary.to_dict())
+
+    @app.route("/sign", methods=["POST"])
+    def sign_file():
+        data = request.get_json()
+        use_case = SignBinaryUseCase(FileRepository(), JsonRepository(), SigningService())
+        result = use_case.execute(data.get("file_id"))
+        if result: 
+            return jsonify(result.to_dict()), 200
+        return jsonify({"error": "Error signing"}), 500
+
+    # --- ESTA ES LA RUTA QUE BUSCA EL CORREO ---
+    @app.route('/approve/<file_id>', methods=['GET'])
+    def approve_file(file_id):
+        sign_use_case = SignBinaryUseCase(FileRepository(), JsonRepository(), SigningService())
+        approve_use_case = ApproveBinaryUseCase(sign_use_case)
+        
+        success = approve_use_case.execute(file_id)
+        
+        if success:
+            return """
+            <div style="font-family: sans-serif; text-align: center; padding: 50px;">
+                <h1 style="color: #28a745;">¡Archivo Aprobado y Firmado! ✅</h1>
+                <p>El proceso de producción ha finalizado correctamente.</p>
+                <p>Puede cerrar esta ventana y refrescar su panel de control.</p>
+            </div>
+            """
+        else:
+            return "<h1 style='color: red;'>Error ❌</h1><p>El archivo no existe o ya fue firmado.</p>"
+
+    @app.route('/clear', methods=['POST'])
+    def clear_history():
+        try:
+            JsonRepository().delete_all()
+            FileRepository().delete_all()
+            return jsonify({"msg": "ok"}), 200
+        except: 
+            return jsonify({"error": "err"}), 500

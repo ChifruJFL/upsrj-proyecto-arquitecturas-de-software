@@ -2,3 +2,4 @@ cryptography
 pytest
 flask
 requests
+Flask-Mail

@@ -16,103 +16,87 @@
 
 from datetime import datetime
 from uuid import uuid4
-from typing import List, Dict, Any, Optional, BinaryIO
-
+from typing import Optional
 from src.domain.models import BinaryFile
 from src.domain.services import SigningService
-from src.infrastructure.file_repository import FileRepository
-from src.infrastructure.json_repository import JsonRepository
 
 
-# ============================================================
-# Caso de uso: Carga de archivo binario
-# ============================================================
+
+
+
+
 class UploadBinaryUseCase:
-    
-    def __init__(self, file_repo: FileRepository, json_repo: JsonRepository):
+    def __init__(self, file_repo, db_repo, email_service=None):
         self.file_repo = file_repo
-        self.json_repo = json_repo
-    
-    def execute(self, file: BinaryIO, environment: str) -> BinaryFile:
-        """Guarda un archivo binario y registra sus metadatos."""
+        self.db_repo = db_repo
+        self.email_service = email_service
+        
+    def execute(self, file, environment: str, user_email: str = None) -> BinaryFile:
         binary_id = str(uuid4())
         filename = self.file_repo.save(file, binary_id)
-        status = 'pending' if environment == 'prod' else 'signed'
-
+        
+        # Prod = pending (esperando correo), Dev = pending (listo para firmar manual)
+        status = 'pending'
+        
         binary = BinaryFile(
-            file_id=binary_id,
+            id=binary_id,
             filename=filename,
             environment=environment,
             status=status,
             uploaded_at=datetime.now()
         )
-
-        # Guardar registro en la base JSON
-        self.json_repo.add_record(binary)
+        
+        self.db_repo.add_record(binary.to_dict())
+        
+        # LOGICA DE PRODUCCIÓN: Enviar correo
+        if environment == 'prod' and self.email_service and user_email:
+            self.email_service.send_approval_email(user_email, binary.id, binary.filename)
+            
         return binary
 
 
-# ============================================================
-# Caso de uso: Listado de archivos
-# ============================================================
-class ListFilesUseCase:
-    
-    def __init__(self, db_repo: JsonRepository):
-        self.db_repo = db_repo
-
-    def execute(self) -> List[Dict[str, Any]]:
-        """Devuelve la lista de archivos registrados."""
-        try:
-            records = self.db_repo.list_records()
-            return records
-        except Exception as e:
-            print(f"[ListFilesUseCase] Error retrieving records: {e}")
-            return []
 
 
-# ============================================================
-# Caso de uso: Firma de archivo binario
-# ============================================================
+
 class SignBinaryUseCase:
-    
-    def __init__(self, file_repo: FileRepository, json_repo: JsonRepository, signing_service: SigningService):
+    def __init__(self, file_repo, json_repo, signing_service):
         self.file_repo = file_repo
         self.json_repo = json_repo
         self.signing_service = signing_service
 
+
+
+
     def execute(self, file_id: str) -> Optional[BinaryFile]:
-        """Firma un archivo existente y actualiza su registro."""
+        
         record = self.json_repo.get_record(file_id)
-        if record is None:
-            print(f"[SignBinaryUseCase] Record not found for file_id: {file_id}")
-            return None
-
+        if not record: return None
+        
         try:
-            # Convertir el registro del repositorio JSON en objeto de dominio
+            # Convertir a objeto
             binary = BinaryFile.from_dict(record)
+            
+            # Firmar
+            signature, signed_path = self.signing_service.sign_file(binary)
 
-            # Cargar archivo original y generar la firma digital
-            binary_data = self.file_repo.load(binary.filename)
-            signature = self.signing_service.sign_binary(binary_data, "private_key.pem")
-
-            # Guardar el archivo firmado
-            signed_path = self.file_repo.move_to_signed(binary.filename, binary_data)
-
-            # Actualizar el modelo con nueva información
-            binary.status = 'signed'
+            # Actualizar estado
+            binary.status = "signed"
             binary.signed_path = signed_path
             binary.signature = signature
-
-            # Actualizar registro en la base JSON
-            self.json_repo.update_record(file_id, {
-                "status": binary.status,
-                "signed_path": binary.signed_path,
-                "signature": binary.signature
-            })
-
-            print(f"[SignBinaryUseCase] File {file_id} signed successfully.")
+            
+            # Guardar cambios
+            self.json_repo.update_record(binary.id, binary.to_dict())
             return binary
-
+            
         except Exception as e:
-            print(f"[SignBinaryUseCase] Error signing file_id {file_id}: {e}")
+            print(f"Error firmando: {e}")
             return None
+
+class ApproveBinaryUseCase:
+    def __init__(self, sign_use_case):
+        self.sign_use_case = sign_use_case
+
+    def execute(self, file_id: str) -> bool:
+        # Al aprobar, simplemente ejecutamos la firma
+        result = self.sign_use_case.execute(file_id)
+        return result is not None

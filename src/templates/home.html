@@ -16,44 +16,336 @@ Descripción: Este archivo define la plantilla HTML principal del visor
 ============================================================ --> 
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Secret Message</title>
+    <title>Gestor de Archivos Firmados</title>
     <style>
+        /* --- NUEVO TEMA (Azules/Grises Modernos) --- */
+        :root {
+            --bg-dark: #0f172a;
+            --bg-container: #1e293b;
+            --border-color: #334155;
+            --text-primary: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --color-accent: #3b82f6;
+            --color-accent-dark: #2563eb;
+            --color-success: #22c55e;
+            --color-warning: #f59e0b;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            margin: 40px;
-            background-color: #f4f4f4;
+            font-family: "Inter", Arial, sans-serif;
+            margin: 0;
+            padding: 25px;
+            min-height: 100vh;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
-        .container {
-            background-color: #fff;
-            padding: 20px 30px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            max-width: 600px;
-            margin: auto;
-        }
+
         h1 {
-            color: #333;
+            color: var(--text-primary);
+            font-weight: 600;
+            margin-bottom: 2rem;
+            letter-spacing: 0.5px;
         }
-        .token, .message {
-            word-break: break-word;
-            background-color: #eee;
-            padding: 10px;
-            border-radius: 5px;
-            font-family: monospace;
+
+        /* --- CONTENEDOR DEL FORMULARIO --- */
+        .upload-wrapper {
+            background: var(--bg-container);
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 520px;
+            margin-bottom: 2rem;
+            border-radius: 14px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+        }
+
+        .form-group { margin-bottom: 1.5rem; }
+
+        label {
+            color: var(--text-secondary);
+            margin-bottom: 0.4rem;
+            display: block;
+            font-size: 0.95rem;
+        }
+
+        input[type="file"] {
+            color: var(--text-primary);
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            background: #334155;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: var(--color-accent);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: 0.25s ease;
+        }
+
+        button:hover {
+            background: var(--color-accent-dark);
+        }
+
+        /* --- TABLA --- */
+        .table-container {
+            width: 100%;
+            max-width: 1050px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-container);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background: #0f172a;
+            color: var(--color-accent);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+        }
+
+        a.download-link {
+            color: var(--color-accent);
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        a.download-link:hover {
+            text-decoration: underline;
+        }
+
+        /* --- ETIQUETAS --- */
+        .status {
+            padding: 5px 10px;
+            font-size: 0.75rem;
+            border-radius: 6px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .status.signed {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--color-success);
+            border: 1px solid var(--color-success);
+        }
+
+        .status.pending {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--color-warning);
+            border: 1px solid var(--color-warning);
+        }
+
+        .environment { font-weight: bold; }
+        .env-prod { color: #f87171; }
+        .env-dev { color: #38bdf8; }
+
+        /* --- POPUP --- */
+        #popup {
+            display: none;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 18px 25px;
+            background: var(--color-success);
+            color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.45);
+            font-weight: 500;
+            animation: slideIn 0.45s ease-out;
+            z-index: 1000;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(140%); }
+            to { transform: translateX(0); }
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <h1>🔐 Secret Message Viewer</h1>
-        <p><strong>Encrypted Token:</strong></p>
-        <div class="token">{{ token }}</div>
 
-        <p><strong>Decrypted Message:</strong></p>
-        <div class="message">{{ message }}</div>
+<body>
+
+    <h1>Gestor de Archivos Firmados</h1>
+
+    <div class="upload-wrapper">
+        <form id="uploadForm">
+            <div class="form-group">
+                <label for="file">Archivo a procesar</label>
+                <input type="file" id="file" name="file" required>
+                <small id="fileNameDisplay"></small>
+            </div>
+
+            <div class="form-group">
+                <label for="environment">Modo de procesamiento:</label>
+                <select id="environment" name="environment">
+                    <option value="dev">Desarrollo (firma inmediata)</option>
+                    <option value="prod">Producción (requiere autorización)</option>
+                </select>
+            </div>
+
+            <button type="submit">Procesar Archivo</button>
+        </form>
     </div>
+
+    <div class="table-container">
+        <table class="file-list-container">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Entorno</th>
+                    <th>Estado</th>
+                    <th>Fecha</th>
+                    <th>Acción</th>
+                    <th>Hash</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <div id="popup"></div>
+
+    <script>
+        const fileInput = document.getElementById('file');
+        const fileNameDisplay = document.getElementById('fileNameDisplay');
+        const form = document.getElementById('uploadForm');
+        const popup = document.getElementById('popup');
+        const tableBody = document.querySelector('.file-list-container tbody');
+
+        document.addEventListener('DOMContentLoaded', loadFiles);
+
+        async function loadFiles() {
+            try {
+                const response = await fetch('/files');
+                if (response.ok) {
+                    const files = await response.json();
+                    tableBody.innerHTML = '';
+                    files.reverse().forEach(file => addRowToTable(file));
+                }
+            } catch (e) {
+                console.error("Error al cargar la lista:", e);
+            }
+        }
+
+        function addRowToTable(file) {
+            const row = document.createElement('tr');
+
+            const id = file.id ? file.id.substring(0, 8) + "..." : "—";
+            const sig = file.signature ? file.signature.substring(0, 12) + "..." : "—";
+            let dateStr = file.uploaded_at || file.uploaded_date || "—";
+            if (dateStr.includes("T")) dateStr = dateStr.split("T")[0];
+
+            const action = file.signed_path
+                ? `<a class="download-link" href="#" onclick="alert('Ubicación del archivo firmado: ${file.signed_path}')">Ver</a>`
+                : "—";
+
+            row.innerHTML = `
+                <td style="font-family: monospace; color: var(--text-secondary);">${id}</td>
+                <td>${file.filename}</td>
+                <td class="environment env-${file.environment}">${file.environment}</td>
+                <td><span class="status ${file.status}">${file.status}</span></td>
+                <td>${dateStr}</td>
+                <td>${action}</td>
+                <td style="font-family: monospace; color: var(--text-secondary);">${sig}</td>
+            `;
+
+            tableBody.appendChild(row);
+        }
+
+        fileInput.addEventListener("change", () => {
+            const fileName = fileInput.files.length ? fileInput.files[0].name : "";
+            fileNameDisplay.textContent = fileName ? "Seleccionado: " + fileName : "";
+        });
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const submitBtn = form.querySelector("button");
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Procesando...";
+
+            const formData = new FormData(form);
+            const env = document.getElementById("environment").value;
+            const isProd = env === "prod";
+
+            try {
+                const uploadResp = await fetch("/upload", { method: "POST", body: formData });
+                if (!uploadResp.ok) throw new Error("No se pudo subir el archivo");
+
+                const uploaded = await uploadResp.json();
+                let processed = uploaded;
+
+                if (!isProd) {
+                    const signResp = await fetch("/sign", {
+                        method: "POST",
+                        headers: {"Content-Type": "application/json"},
+                        body: JSON.stringify({ file_id: uploaded.id })
+                    });
+
+                    if (!signResp.ok) throw new Error("Error durante la firma");
+                    processed = await signResp.json();
+                }
+
+                popup.style.backgroundColor = processed.status === "signed"
+                    ? "var(--color-success)"
+                    : "var(--color-warning)";
+
+                popup.textContent = processed.status === "signed"
+                    ? "Archivo procesado y firmado correctamente."
+                    : "Archivo registrado. Requiere aprobación.";
+
+                popup.style.display = "block";
+                setTimeout(() => popup.style.display = "none", 3500);
+
+                form.reset();
+                fileNameDisplay.textContent = "";
+
+                tableBody.innerHTML = "";
+                loadFiles();
+
+            } catch (err) {
+                popup.style.backgroundColor = "var(--color-accent-dark)";
+                popup.textContent = "Error: " + err.message;
+                popup.style.display = "block";
+                setTimeout(() => popup.style.display = "none", 3000);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Procesar Archivo";
+            }
+        });
+    </script>
+
 </body>
 </html>

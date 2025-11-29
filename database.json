@@ -25,5 +25,65 @@
         "uploaded_at": "2025-11-12T22:26:24.170302",
         "signed_path": null,
         "signature": null
+    },
+    {
+        "id": "0894725d-18f9-4c14-b4bc-085ddad27d8b",
+        "filename": "data/binaries/0894725d-18f9-4c14-b4bc-085ddad27d8b20251128210621.bin",
+        "environment": "dev",
+        "status": "signed",
+        "uploaded_at": "2025-11-28T21:06:21.347299",
+        "signed_path": "/workspaces/upsrj-proyecto-arquitecturas-de-software/data/signed/signed_0894725d-18f9-4c14-b4bc-085ddad27d8b20251128210621.bin",
+        "signature": "09bed65e5207727e1d736062cae5ea23c4bbced00a49e258003d93cd5d5ad13a",
+        "timestamp": "2025-11-28T21:06:21.347584"
+    },
+    {
+        "id": "c590ce56-fa06-4825-9038-a47f70eca5cf",
+        "filename": "data/binaries/c590ce56-fa06-4825-9038-a47f70eca5cf20251128210635.bin",
+        "environment": "prod",
+        "status": "pending",
+        "uploaded_at": "2025-11-28T21:06:35.400627",
+        "signed_path": null,
+        "signature": null,
+        "timestamp": "2025-11-28T21:06:35.401182"
+    },
+    {
+        "id": "8e4c8c30-866d-411d-80ac-81f1fe68db59",
+        "filename": "data/binaries/8e4c8c30-866d-411d-80ac-81f1fe68db5920251128212247.bin",
+        "environment": "prod",
+        "status": "pending",
+        "uploaded_at": "2025-11-28T21:22:47.515004",
+        "signed_path": null,
+        "signature": null,
+        "timestamp": "2025-11-28T21:22:47.515322"
+    },
+    {
+        "id": "88b92660-e874-45e9-9ffa-d7a568a96d17",
+        "filename": "data/binaries/88b92660-e874-45e9-9ffa-d7a568a96d1720251128212439.bin",
+        "environment": "prod",
+        "status": "pending",
+        "uploaded_at": "2025-11-28T21:24:39.522637",
+        "signed_path": null,
+        "signature": null,
+        "timestamp": "2025-11-28T21:24:39.522950"
+    },
+    {
+        "id": "f129c2b3-ca3c-41cf-9c4f-76d2f0b255b2",
+        "filename": "data/binaries/f129c2b3-ca3c-41cf-9c4f-76d2f0b255b220251128213030.bin",
+        "environment": "prod",
+        "status": "signed",
+        "uploaded_at": "2025-11-28T21:30:30.007759",
+        "signed_path": "/workspaces/upsrj-proyecto-arquitecturas-de-software/data/signed/signed_f129c2b3-ca3c-41cf-9c4f-76d2f0b255b220251128213030.bin",
+        "signature": "09bed65e5207727e1d736062cae5ea23c4bbced00a49e258003d93cd5d5ad13a",
+        "timestamp": "2025-11-28T21:30:30.007964"
+    },
+    {
+        "id": "05ef68e2-6faf-4cd5-bfe9-81048049b7ab",
+        "filename": "data/binaries/05ef68e2-6faf-4cd5-bfe9-81048049b7ab20251128213211.bin",
+        "environment": "prod",
+        "status": "signed",
+        "uploaded_at": "2025-11-28T21:32:11.542563",
+        "signed_path": "/workspaces/upsrj-proyecto-arquitecturas-de-software/data/signed/signed_05ef68e2-6faf-4cd5-bfe9-81048049b7ab20251128213211.bin",
+        "signature": "09bed65e5207727e1d736062cae5ea23c4bbced00a49e258003d93cd5d5ad13a",
+        "timestamp": "2025-11-28T21:32:11.543493"
     }
 ]
